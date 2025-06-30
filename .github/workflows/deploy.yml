@@ -1,0 +1,29 @@
+name: Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Wrangler CLI
+      run: npm install -g wrangler
+
+    - name: Authenticate Wrangler with Cloudflare
+      env:
+        CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      run: wrangler login --api-token $CF_API_TOKEN
+
+    - name: Publish Worker
+      env:
+        CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        CF_WORKER_NAME: "v2ray-worker"
+      run: wrangler publish --name $CF_WORKER_NAME --account-id $CF_ACCOUNT_ID
